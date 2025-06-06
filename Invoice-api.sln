@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36202.13 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Invoice-api", "Invoice-api\Invoice-api.csproj", "{F6433761-ACE4-4ACD-974B-2F90C0473371}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F6433761-ACE4-4ACD-974B-2F90C0473371}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6433761-ACE4-4ACD-974B-2F90C0473371}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6433761-ACE4-4ACD-974B-2F90C0473371}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6433761-ACE4-4ACD-974B-2F90C0473371}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {080F3330-65F5-429C-831D-A8E57F38ECE2}
+	EndGlobalSection
+EndGlobal
