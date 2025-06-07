@@ -15,48 +15,41 @@ namespace Invoice_api.Manager
 
         public async Task<CustomerDto> CreateCustomerAsync(CustomerToSaveDto customerDto)
         {
-            if (string.IsNullOrWhiteSpace(customerDto.Name) || customerDto.CustomerNumber < 10)
-            {
-                throw new ArgumentException("El nombre del cliente es requerido y el número debe ser válido.");
-            }
+            ValidateCustomerToSave(customerDto);
 
-            Customer customer = ToEntity(customerDto);
-            customer = await _customerRepository.CreateAsync(customer);
-            return ToDto(customer);
+            var customer = MapToEntity(customerDto);
+            var created = await _customerRepository.CreateAsync(customer);
+
+            return MapToDto(created);
         }
 
         public async Task<CustomerDto> GetCustomerByIdAsync(long id)
         {
-            var customer = await _customerRepository.FindByIdAsync(id);
-            if (customer == null)
-            {
-                throw new KeyNotFoundException($"No se encontró ningún cliente con el ID {id}.");
-            }
+            var customer = await _customerRepository.FindByIdAsync(id)
+                ?? throw new KeyNotFoundException($"Cliente con ID {id} no encontrado.");
 
-            return ToDto(customer);
+            return MapToDto(customer);
         }
 
         public async Task<IEnumerable<CustomerDto>> GetAllCustomersAsync()
         {
             var customers = await _customerRepository.GetAllAsync();
-            return customers.Select(ToDto);
+            return customers.Select(MapToDto);
         }
 
         public async Task<CustomerDto> UpdateCustomerAsync(CustomerToSaveDto customerDto, long id)
         {
-            var existingCustomer = await _customerRepository.FindByIdAsync(id);
-            if (existingCustomer == null)
-            {
-                throw new KeyNotFoundException($"No se encontró ningún cliente con el ID {id}.");
-            }
+            ValidateCustomerToSave(customerDto);
 
-            existingCustomer.CustomerNumber = customerDto.CustomerNumber;
-            existingCustomer.CustomerName = customerDto.Name;
-            existingCustomer.Location = customerDto.Location;
+            var existing = await _customerRepository.FindByIdAsync(id)
+                ?? throw new KeyNotFoundException($"Cliente con ID {id} no encontrado.");
 
-            existingCustomer = await _customerRepository.UpdateAsync(existingCustomer);
+            existing.CustomerName = customerDto.Name;
+            existing.CustomerNumber = customerDto.CustomerNumber;
+            existing.Location = customerDto.Location;
 
-            return ToDto(existingCustomer);
+            var updated = await _customerRepository.UpdateAsync(existing);
+            return MapToDto(updated);
         }
 
         public async Task<bool> DeleteCustomerAsync(long id)
@@ -64,17 +57,26 @@ namespace Invoice_api.Manager
             return await _customerRepository.DeleteAsync(id);
         }
 
-        private Customer ToEntity(CustomerToSaveDto customerDto)
+        private static void ValidateCustomerToSave(CustomerToSaveDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                throw new ArgumentException("El nombre del cliente es requerido.");
+
+            if (dto.CustomerNumber < 10)
+                throw new ArgumentException("El número del cliente debe ser mayor o igual a 10.");
+        }
+
+        private static Customer MapToEntity(CustomerToSaveDto dto)
         {
             return new Customer
             {
-                CustomerName = customerDto.Name,
-                CustomerNumber = customerDto.CustomerNumber,
-                Location = customerDto.Location
+                CustomerName = dto.Name,
+                CustomerNumber = dto.CustomerNumber,
+                Location = dto.Location
             };
         }
 
-        private CustomerDto ToDto(Customer customer)
+        private static CustomerDto MapToDto(Customer customer)
         {
             return new CustomerDto
             {
@@ -86,7 +88,14 @@ namespace Invoice_api.Manager
                 {
                     InvoiceId = i.InvoiceId,
                     Date = i.Date,
-                    Total = i.Total
+                    Total = i.Total,
+                    InvoiceDetails = i.InvoiceDetails.Select(d => new InvoiceDetailDto
+                    {
+                        id = d.Id,
+                        ProductName = d.ProductName,
+                        Quantity = d.Quantity,
+                        UnitPrice = d.Unitprice
+                    }).ToList()
                 }).ToList()
             };
         }

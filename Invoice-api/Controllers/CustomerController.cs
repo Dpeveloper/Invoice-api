@@ -4,8 +4,8 @@ using Invoice_api.Infraestructure.Dtos;
 
 namespace Invoice_api.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class CustomerController : ControllerBase
     {
         private readonly CustomerManager _customerManager;
@@ -19,19 +19,19 @@ namespace Invoice_api.Controllers
         public async Task<IActionResult> CreateCustomer([FromBody] CustomerToSaveDto customerDto)
         {
             if (customerDto == null)
-            {
-                return BadRequest("El cliente es requerido.");
-            }
+                return BadRequest(new { error = "El cliente es requerido." });
 
             var createdCustomer = await _customerManager.CreateCustomerAsync(customerDto);
             return CreatedAtAction(nameof(GetCustomerById), new { id = createdCustomer.CustomerId }, createdCustomer);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:long}")]
         public async Task<IActionResult> GetCustomerById(long id)
         {
             var customer = await _customerManager.GetCustomerByIdAsync(id);
-            return customer != null ? Ok(customer) : NotFound($"Cliente con ID {id} no encontrado.");
+            return customer is not null
+                ? Ok(customer)
+                : NotFound(new { error = $"Cliente con ID {id} no encontrado." });
         }
 
         [HttpGet]
@@ -41,23 +41,23 @@ namespace Invoice_api.Controllers
             return Ok(customers);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:long}")]
         public async Task<IActionResult> UpdateCustomer(long id, [FromBody] CustomerToSaveDto customerDto)
         {
             if (customerDto == null)
-            {
-                return BadRequest("El cliente es requerido.");
-            }
+                return BadRequest(new { error = "El cliente es requerido." });
 
             var updatedCustomer = await _customerManager.UpdateCustomerAsync(customerDto, id);
             return Ok(updatedCustomer);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:long}")]
         public async Task<IActionResult> DeleteCustomer(long id)
         {
             var deleted = await _customerManager.DeleteCustomerAsync(id);
-            return deleted ? Ok($"Cliente con ID {id} eliminado.") : NotFound($"Cliente con ID {id} no encontrado.");
+            return deleted
+                ? Ok(new { message = $"Cliente con ID {id} eliminado." })
+                : NotFound(new { error = $"Cliente con ID {id} no encontrado." });
         }
     }
 }

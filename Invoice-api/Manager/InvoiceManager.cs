@@ -1,7 +1,6 @@
 ﻿using Invoice_api.Domain;
 using Invoice_api.Domain.Entities;
 using Invoice_api.Infraestructure.Dtos;
-using Invoice_api.Infraestructure.Repository;
 using Invoice_api.Infraestructure.Repository.Interface;
 
 namespace Invoice_api.Manager
@@ -82,15 +81,13 @@ namespace Invoice_api.Manager
                 throw new KeyNotFoundException($"No se encontró ninguna factura con el ID {id}.");
             }
 
-            // Validar detalles de la factura
             if (invoiceDto.InvoiceDetails == null || invoiceDto.InvoiceDetails.Count == 0)
             {
                 throw new ArgumentException("La factura debe contener al menos un detalle.");
             }
 
             double calculatedTotal = invoiceDto.InvoiceDetails.Sum(d => d.Quantity * d.UnitPrice);
-
-            // Actualizar campos modificables
+            
             existingInvoice.Total = calculatedTotal;
             existingInvoice.CustomerId = invoiceDto.CustomerId > 0 ? invoiceDto.CustomerId : existingInvoice.CustomerId;
 
@@ -142,6 +139,7 @@ namespace Invoice_api.Manager
                 },
                 InvoiceDetails = invoice.InvoiceDetails.Select(d => new InvoiceDetailDto
                 {
+                    id = d.Id,
                     ProductName = d.ProductName,
                     Quantity = d.Quantity,
                     UnitPrice = d.Unitprice

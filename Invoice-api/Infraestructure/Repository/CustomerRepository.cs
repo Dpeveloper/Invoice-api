@@ -23,8 +23,10 @@ namespace Invoice_api.Infraestructure.Repository
 
         public async Task<Customer?> FindByIdAsync(long id)
         {
-            return await _context.Customers.Include(c => c.Invoices)
-                                           .FirstOrDefaultAsync(c => c.CustomerId == id);
+            return await _context.Customers
+                .Include(c => c.Invoices)
+                .ThenInclude(i => i.InvoiceDetails)
+                .FirstOrDefaultAsync(c => c.CustomerId == id);
         }
 
         public async Task<IEnumerable<Customer>> GetAllAsync()
